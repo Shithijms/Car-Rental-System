@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import Navbar from './components/Navbar'
 import { useLocation, Routes, Route } from "react-router-dom";
-import Home from "./pages/home";
+import Home from "./pages/Home";
 import Cars from "./pages/Cars";
 import CarDetails from "./pages/CarDetails";
 import MyBooking from "./pages/MyBooking";
@@ -13,7 +13,7 @@ const isOwnerPath = useLocation().pathname.startsWith("/owner");
 
   return (
     <>
-        < Navbar setShowlogin={setShowLogin}/>
+        <Navbar setShowLogin={setShowLogin} />
         <Routes>
           <Route path="/" element={<Home/>}/>
           <Route path="/cars" element={<Cars/>}/>
