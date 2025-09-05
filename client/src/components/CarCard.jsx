@@ -26,7 +26,28 @@ const CarCard = ([car]) => {
                     </div>
                 </div>
 
-                <hr className='border-borderColor my-6' />
+                <div className='mt-4 grid grid-cols-2 gap-y-2 text-gray-600'>
+                    <div className='flex items-center text-sm text-muted-foreground'>
+                        <img src={assets.users_icon} alt=""className='h-4 mr-2'/>
+                        <span>{car.seating_capacity} seats</span>
+                    </div>
+                    <div className='flex items-center text-sm text-muted-foreground'>
+                        <img src={assets.fuel_icon} alt=""className='h-4 mr-2'/>
+                        <span>{car.fuel_type} </span>
+                    </div>
+                    <div className='flex items-center text-sm text-muted-foreground'>
+                        <img src={assets.car_icon} alt=""className='h-4 mr-2'/>
+                        <span>{car.transmission} </span>
+                    </div>
+                    <div className='flex items-center text-sm text-muted-foreground'>
+                        <img src={assets.location_icon} alt=""className='h-4 mr-2'/>
+                        <span>{car.loaction} </span>
+                    </div>
+
+                </div>
+
+
+                {/* <hr className='border-borderColor my-6' />
 
                 <div className='grid grid-cols-2 sm:grid-cols-4 gap-4'>
                     {[
@@ -43,28 +64,30 @@ const CarCard = ([car]) => {
                 </div>
 
                 {/* description */}
-                <div>
+                {/* <div>
                     <h1 className='text-xl font-medium mb-3'>Description</h1>
                     <p className='text-gray-500'>{car.description}</p>
-                </div>
+                </div> */}
 
                 {/* features */}
-                <div>
+                {/* <div>
                     <h1 className='text-xl font-medium mb-3'>Features</h1>
                     <ul className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
+                        {
+                            ["360 Camera ","Bluetooth","GPS","heated Seats","RearView Mirror"].map((item)=>(
+                                <li key={item} className='flex-item-center text-grey-500'>
+                                    <img src={assets.check_icon} alt="check-icon" className='w-4 mr-2' />
+                                    {item}
+                                </li>
+
+                                
+                            ))
+                        }
                         
-
-
-
-
-
-
-
-
 
                         
                     </ul>
-                </div>
+                </div> */} 
             </div>
         </div>
     )
