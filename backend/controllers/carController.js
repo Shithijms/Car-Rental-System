@@ -100,11 +100,11 @@ const getAllCars = async (req, res, next) => {
         console.log('SQL Query:', query);
         console.log('Params:', params);
 
-        // Apply pagination
-        const pageNum = parseInt(page, 10) || 1;
-        const limitNum = parseInt(limit, 10) || 12;
-        const offset = (pageNum - 1) * limitNum;        query += ' ORDER BY c.created_at DESC LIMIT ? OFFSET ?';
-        params.push(parseInt(limit), offset);
+        // Apply pagination (inline numbers; some MySQL setups reject bound params for LIMIT/OFFSET)
+        const pageNum = Number.parseInt(page, 10) || 1;
+        const limitNum = Number.parseInt(limit, 10) || 12;
+        const offset = (pageNum - 1) * limitNum;
+        query += ` ORDER BY c.created_at DESC LIMIT ${limitNum} OFFSET ${offset}`;
 
         const [cars] = await pool.execute(query, params);
 

@@ -7,55 +7,31 @@ const setupDatabase = async () => {
         console.log('Setting up car rental database...');
 
         // Read and execute schema
-        const schemaPath = path.join(__dirname, '../../database/schema.sql');
+        const schemaPath = path.join(__dirname, '../database/schema.sql');
         const schema = fs.readFileSync(schemaPath, 'utf8');
 
-        const statements = schema.split(';').filter(stmt => stmt.trim());
-
-        for (const statement of statements) {
-            if (statement.trim()) {
-                await pool.execute(statement + ';');
-            }
-        }
+        await pool.query(schema);
         console.log('Database schema created successfully');
 
         // Read and execute stored procedures
-        const proceduresPath = path.join(__dirname, '../../database/procedures.sql');
+        const proceduresPath = path.join(__dirname, '../database/procedures.sql');
         const procedures = fs.readFileSync(proceduresPath, 'utf8');
 
-        const procedureStatements = procedures.split('DELIMITER $$').filter(stmt => stmt.trim());
-
-        for (const statement of procedureStatements) {
-            if (statement.trim() && !statement.includes('DELIMITER ;')) {
-                await pool.execute('DELIMITER $$' + statement + 'DELIMITER ;');
-            }
-        }
+        await pool.query(procedures);
         console.log('Stored procedures created successfully');
 
         // Read and execute triggers
-        const triggersPath = path.join(__dirname, '../../database/triggers.sql');
+        const triggersPath = path.join(__dirname, '../database/triggers.sql');
         const triggers = fs.readFileSync(triggersPath, 'utf8');
 
-        const triggerStatements = triggers.split('DELIMITER $$').filter(stmt => stmt.trim());
-
-        for (const statement of triggerStatements) {
-            if (statement.trim() && !statement.includes('DELIMITER ;')) {
-                await pool.execute('DELIMITER $$' + statement + 'DELIMITER ;');
-            }
-        }
+        await pool.query(triggers);
         console.log('✅ Database triggers created successfully');
 
         // Read and execute views
-        const viewsPath = path.join(__dirname, '../../database/views.sql');
+        const viewsPath = path.join(__dirname, '../database/views.sql');
         const views = fs.readFileSync(viewsPath, 'utf8');
 
-        const viewStatements = views.split(';').filter(stmt => stmt.trim());
-
-        for (const statement of viewStatements) {
-            if (statement.trim()) {
-                await pool.execute(statement + ';');
-            }
-        }
+        await pool.query(views);
         console.log('✅ Database views created successfully');
 
         // Insert seed data
@@ -88,7 +64,7 @@ const insertSeedData = async () => {
       ('Compact', 45.00, 270.00, 1000.00, 'Comfortable mid-size cars with great features'),
       ('SUV', 65.00, 390.00, 1500.00, 'Spacious SUVs for family trips and outdoor adventures'),
       ('Luxury', 120.00, 720.00, 2800.00, 'Premium luxury vehicles for special occasions'),
-      ('Sports', ninety.00, 540.00, 2100.00, 'High-performance sports cars for enthusiasts')
+      ('Sports', 90.00, 540.00, 2100.00, 'High-performance sports cars for enthusiasts')
     `);
 
         // Insert sample cars based on the frontend dummy data
