@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { dummyCarData, assets } from '../assets/assets'
 import Loader from '../components/Loader'
+import {  Link} from "react-router-dom";
+import {carsAPI, reviewsAPI} from "../services/api.js";
+import {useAuth } from "../context/AuthContext"
+import {useBooking} from "../context/BookingContext.jsx";
 
 const CarDetails = () => {
   const { id } = useParams()
