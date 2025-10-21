@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { BookingProvider } from './context/BookingContext';
 import Navbar from './components/Navbar';
@@ -19,48 +19,46 @@ import Booking from "./pages/Booking.jsx";
 
 function App() {
   return (
-      <Router>
-        <AuthProvider>
-          <BookingProvider>
-            <div className="min-h-screen bg-gray-50 flex flex-col">
-              <Navbar />
-              <main className="flex-grow">
-                <Routes>
-                  {/* Public Routes */}
-                  <Route path="/" element={<Home />} />
-                  <Route path="/cars" element={<Cars />} />
-                  <Route path="/car/:id" element={<CarDetails />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/booking" element={<Booking />} />
-                  <Route path="/payment" element={<Payment />} />
-                  {/* Customer Routes */}
-                  <Route path="/my-bookings" element={<MyBooking />} />
+    <AuthProvider>
+      <BookingProvider>
+        <div className="min-h-screen bg-gray-50 flex flex-col">
+          <Navbar />
+          <main className="flex-grow">
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Home />} />
+              <Route path="/cars" element={<Cars />} />
+              <Route path="/car/:id" element={<CarDetails />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/booking" element={<Booking />} />
+              <Route path="/payment" element={<Payment />} />
+              {/* Customer Routes */}
+              <Route path="/my-bookings" element={<MyBooking />} />
 
-                  {/* Owner Routes */}
-                  <Route path="/owner/dashboard" element={<Dashboard />} />
-                  <Route path="/owner/cars" element={<ManageCars />} />
-                  <Route path="/owner/bookings" element={<ManageBookings />} />
+              {/* Owner Routes */}
+              <Route path="/owner/dashboard" element={<Dashboard />} />
+              <Route path="/owner/cars" element={<ManageCars />} />
+              <Route path="/owner/bookings" element={<ManageBookings />} />
 
-                  {/* 404 Route */}
-                  <Route path="*" element={
-                    <div className="min-h-screen flex items-center justify-center">
-                      <div className="text-center">
-                        <h1 className="text-4xl font-bold text-gray-900 mb-4">404</h1>
-                        <p className="text-xl text-gray-600 mb-8">Page not found</p>
-                        <a href="/" className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors">
-                          Go Home
-                        </a>
-                      </div>
-                    </div>
-                  } />
-                </Routes>
-              </main>
-              <Footer />
-            </div>
-          </BookingProvider>
-        </AuthProvider>
-      </Router>
+              {/* 404 Route */}
+              <Route path="*" element={
+                <div className="min-h-screen flex items-center justify-center">
+                  <div className="text-center">
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">404</h1>
+                    <p className="text-xl text-gray-600 mb-8">Page not found</p>
+                    <a href="/" className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                      Go Home
+                    </a>
+                  </div>
+                </div>
+              } />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </BookingProvider>
+    </AuthProvider>
   );
 }
 

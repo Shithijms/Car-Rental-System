@@ -15,21 +15,27 @@ const CarDetails = () => {
 
   const features = ["360 Camera", "Bluetooth", "GPS", "Heated Seats", "Rear View Mirror"]
 
+  // 
+  
   useEffect(() => {
-    let isMounted = true
     const fetchCar = async () => {
       try {
-        const { data } = await carsAPI.getById(id)
-        if (data?.success && isMounted) {
-          setCar(data.data)
+        const res = await fetch(`http://localhost:5000/api/cars/${id}`);
+        if (!res.ok) throw new Error('Failed to fetch car');
+        const json = await res.json();
+        if (json.success) {
+          setCar(json.data);
+        } else {
+          console.error('API returned error:', json.message || 'Unknown error');
         }
-      } catch (e) {
-        console.error('Failed to fetch car details', e)
+      } catch (error) {
+        console.error('Error loading car:', error.message);
       }
-    }
-    fetchCar()
-    return () => { isMounted = false }
-  }, [id])
+    };
+  
+    fetchCar();
+  }, [id]);
+  
 
   const handleSubmit = (e) => {
     e.preventDefault()

@@ -12,7 +12,6 @@ const Navbar = ({ setShowLogin }) => {
             <Link to = '/'>
                 <img src={assets.logo} alt="logo" className="h-8" />
             </Link>
-            // In the dropdown menu for authenticated users, add:
             <Link
                 to="/profile"
                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
