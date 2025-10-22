@@ -486,6 +486,63 @@ const updateCarAvailability = async (req, res, next) => {
     }
 };
 
+const getAllCarsWithExtras = async (req, res) => {
+    try {
+      // Replace with your actual DB logic
+      const cars = await db.Car.findAll();             // SELECT * FROM cars
+      const categories = await db.CarCategory.findAll(); // SELECT * FROM car_categories
+      const branches = await db.Branch.findAll();        // SELECT * FROM branches
+  
+      res.json({
+        cars,
+        categories,
+        branches
+      });
+    } catch (error) {
+      console.error('Error fetching all data:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  };
+
+
+  const getAllCarRelatedData = async (req, res, next) => {
+    try {
+      // Fetch all cars with category and branch info
+      const [cars] = await pool.execute(`
+        SELECT 
+          c.*,
+          cat.name AS category_name,
+          cat.daily_rate,
+          b.name AS branch_name
+        FROM cars c
+        JOIN car_categories cat ON c.category_id = cat.id
+        JOIN branches b ON c.branch_id = b.id
+        ORDER BY c.created_at DESC
+      `);
+  
+      // Fetch all categories
+      const [categories] = await pool.execute(`
+        SELECT id, name, daily_rate FROM car_categories ORDER BY name
+      `);
+  
+      // Fetch all branches
+      const [branches] = await pool.execute(`
+        SELECT id, name FROM branches ORDER BY name
+      `);
+  
+      res.json({
+        success: true,
+        data: {
+          cars,
+          categories,
+          branches,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
 module.exports = {
     getAllCars,
     getCarById,
@@ -494,5 +551,7 @@ module.exports = {
     deleteCar,
     uploadCarImage,
     updateCarAvailability,
+    getAllCarsWithExtras,
+    getAllCarRelatedData,
     upload
 };

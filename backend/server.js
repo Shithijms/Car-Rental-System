@@ -15,7 +15,7 @@ const discountRoutes = require('./routes/discountRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const branchRoutes = require('./routes/branchRoutes');
-
+const customerRoutes = require('./routes/customerRoutes');
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
 
@@ -43,7 +43,7 @@ app.use('/api/discounts', discountRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/branches', branchRoutes);
-
+app.use('/api/customers', customerRoutes);
 // Health check route
 app.get('/api/health', (req, res) => {
     res.json({

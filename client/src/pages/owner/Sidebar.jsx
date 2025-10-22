@@ -20,7 +20,7 @@ const Sidebar = () => {
             src={image ? URL.createObjectURL(image) : user.image || "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=300"}
             alt="profile"
             className="w-24 h-24 rounded-full object-cover border-2 border-primary"
-          />
+          />   
           <input
             type="file"
             id='image'

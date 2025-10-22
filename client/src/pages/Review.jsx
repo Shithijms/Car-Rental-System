@@ -30,29 +30,70 @@ const Review = () => {
         }
     };
 
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+
+    //     if (!rental) return;
+
+    //     setSubmitting(true);
+    //     try {
+    //         await reviewsAPI.submit({
+    //             rental_id: rental.id,
+    //             car_id: rental.car_id,
+    //             rating: review.rating,
+    //             comment: review.comment,
+    //         });
+
+    //         navigate('/my-bookings', {
+    //             state: { message: 'Review submitted successfully!' }
+    //         });
+    //     } catch (err) {
+    //         setError(err.response?.data?.message || 'Failed to submit review');
+    //     } finally {
+    //         setSubmitting(false);
+    //     }
+    // };
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         if (!rental) return;
-
+      
         setSubmitting(true);
+        setError('');
         try {
-            await reviewsAPI.submit({
-                rental_id: rental.id,
-                car_id: rental.car_id,
-                rating: review.rating,
-                comment: review.comment,
-            });
-
-            navigate('/my-bookings', {
-                state: { message: 'Review submitted successfully!' }
-            });
+          const response = await fetch('https://your-backend-api.com/api/reviews', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              rental_id: rental.id,
+              car_id: rental.car_id,
+              rating: review.rating,
+              comment: review.comment,
+            }),
+          });
+      
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to submit review');
+          }
+      
+          // Optionally clear form
+          setReview({ rating: 5, comment: '' });
+      
+          // Show success message (can also use a toast library or modal)
+          alert('Review submitted successfully!');
+      
+          // Redirect to /my-bookings
+          navigate('/my-bookings');
+      
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to submit review');
+          setError(err.message);
         } finally {
-            setSubmitting(false);
+          setSubmitting(false);
         }
-    };
+      };
+      
 
     if (loading) {
         return (

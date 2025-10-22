@@ -1,27 +1,46 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { dummyCarData, assets } from '../assets/assets'
+import axios from 'axios'
+import { assets } from '../assets/assets'
 import Loader from './Loader'
 
 const CarDetails = () => {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [car, setCar] = useState(null)
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
   const currency = import.meta.env.VITE_CURRENCY || '₹'
 
   const features = ["360 Camera", "Bluetooth", "GPS", "Heated Seats", "Rear View Mirror"]
 
   useEffect(() => {
-    // Ensure both are strings for comparison
-    setCar(dummyCarData.find(car => String(car._id) === String(id)))
-  }, [id])
+    axios.get('http://localhost:5000/api/cars/all-data')
+      .then((res) => {
+        setData(res.data)
+      })
+      .catch((err) => console.error('Error fetching car data:', err))
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) return <Loader />
+
+  // Destructure only when data is loaded
+  const { cars, categories, branches } = data || {}
+
+  // Find car by ID from URL param
+  const car = cars?.find(car => String(car.id) === String(id))
+
+  if (!car) return <p className='text-center text-gray-600 mt-10'>Car not found</p>
+
+  const category = categories.find(cat => cat.id === car.category_id)
+  const branch = branches.find(branch => branch.id === car.branch_id)
 
   const handleSubmit = (e) => {
     e.preventDefault()
     // Add booking logic here
   }
 
-  return car ? (
+  return (
     <div className='px-6 md:px-16 lg:px-24 xl:px-32 mt-16'>
       <button onClick={() => navigate(-1)} className='flex items-center gap-2 mb-6 text-gray-500 cursor-pointer'>
         <img src={assets.arrow_icon} alt="" className='rotate-180 opacity-65' />
@@ -31,20 +50,20 @@ const CarDetails = () => {
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12'>
         {/* Left: Car Image & Details */}
         <div className='lg:col-span-2'>
-          <img src={car.image} alt="" className='w-full h-auto md:max-h-100 object-cover rounded-xl mb-6 shadow-md' />
+          <img src={car.image_url} alt="" className='w-full h-auto md:max-h-100 object-cover rounded-xl mb-6 shadow-md' />
           <div className='space-y-6'>
             <div>
               <h1 className='text-3xl font-bold'>{car.brand} {car.model}</h1>
-              <p className='text-gray-500 text-lg'>{car.category} • {car.year}</p>
+              <p className='text-gray-500 text-lg'>{category?.name || 'Uncategorized'} • {car.year}</p>
             </div>
             <hr className='border-borderColor my-6' />
 
             <div className='grid grid-cols-2 sm:grid-cols-4 gap-4'>
-              {[
-                { icon: assets.users_icon, text: `${car.seating_capacity} Seats` },
-                { icon: assets.fuel_icon, text: car.fuel_type },
-                { icon: assets.car_icon, text: car.transmission },
-                { icon: assets.location_icon, text: car.location },
+              {[ 
+                { icon: assets.users_icon, text: `${car.seating_capacity || 5} Seats` },
+                { icon: assets.fuel_icon, text: car.fuel_type || 'Petrol' },
+                { icon: assets.car_icon, text: car.transmission || 'Manual' },
+                { icon: assets.location_icon, text: branch?.name || 'Branch Unknown' },
               ].map(({ icon, text }) => (
                 <div key={text} className='flex flex-col items-center bg-light p-4 rounded-lg'>
                   <img src={icon} alt="" className='h-5 mb-2' />
@@ -56,7 +75,7 @@ const CarDetails = () => {
             {/* Description */}
             <div>
               <h1 className='text-xl font-medium mb-3'>Description</h1>
-              <p className='text-gray-500'>{car.description}</p>
+              <p className='text-gray-500'>{car.description || 'No description available.'}</p>
             </div>
 
             {/* Features */}
@@ -73,10 +92,11 @@ const CarDetails = () => {
             </div>
           </div>
         </div>
+
         {/* right: Booking Form */}
         <form onSubmit={handleSubmit} className='shadow-lg h-max sticky top-18 rounded-xl p-6 space-y-6 text-gray-500'>
           <p className='flex items-center justify-between text-2xl text-gray-800 font-semibold'>
-            {currency}{car.pricePerDay}
+            {currency}{category?.daily_rate || 'N/A'}
             <span className='text-base text-gray-400 font-normal'>per day</span>
           </p>
 
@@ -96,7 +116,7 @@ const CarDetails = () => {
         </form>
       </div>
     </div>
-  ) : <Loader />
+  )
 }
 
 export default CarDetails

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import { carsAPI, categoriesAPI, branchesAPI } from '../../services/api';
 
 const ManageCars = () => {
@@ -35,23 +36,25 @@ const ManageCars = () => {
 
     const fetchData = async () => {
         try {
-            setLoading(true);
-            const [carsResponse, categoriesResponse, branchesResponse] = await Promise.all([
-                carsAPI.getAll({ limit: 100 }),
-                categoriesAPI.getAll(),
-                branchesAPI.getAll(),
-            ]);
-
-            setCars(carsResponse.data.data);
-            setCategories(categoriesResponse.data.data);
-            setBranches(branchesResponse.data.data);
-        } catch (err) {
+          setLoading(true);
+          
+          const response = await axios.get('http://localhost:5000/api/cars/all-data');
+      
+          if (response.data.success) {
+            setCars(response.data.data.cars);
+            setCategories(response.data.data.categories);
+            setBranches(response.data.data.branches);
+          } else {
             setError('Failed to fetch data');
-            console.error('Error fetching data:', err);
+          }
+        } catch (err) {
+          console.error('Error fetching data:', err);
+          setError('Failed to fetch data');
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
-    };
+      };
+      
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;

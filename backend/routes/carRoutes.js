@@ -8,6 +8,8 @@ const {
     deleteCar,
     uploadCarImage,
     updateCarAvailability,
+    getAllCarsWithExtras ,
+    getAllCarRelatedData,
     upload
 } = require('../controllers/carController');
 const { auth, ownerAuth } = require('../middleware/auth');
@@ -63,5 +65,9 @@ router.post(
     upload.single('image'),
     uploadCarImage
 );
+
+router.get('/all-data', getAllCarsWithExtras);
+
+router.get('/all-data', getAllCarRelatedData);
 
 module.exports = router;
