@@ -3,6 +3,8 @@ const { hashPassword, comparePassword, validateEmail } = require('../utils/helpe
 const { generateToken } = require('../utils/jwt');
 
 const register = async (req, res, next) => {
+    console.log("Login body received:", req.body);
+
     try {
         const { name, email, password, phone, address, driver_license, date_of_birth } = req.body;
 
@@ -47,9 +49,18 @@ const register = async (req, res, next) => {
         // Create user
         const [result] = await pool.execute(
             `INSERT INTO customers (name, email, password, phone, address, driver_license, date_of_birth) 
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [name, email, hashedPassword, phone, address, driver_license, date_of_birth]
-        );
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [
+              name,
+              email,
+              hashedPassword,
+              phone ?? null,
+              address ?? null,
+              driver_license ?? null,
+              date_of_birth ?? null
+            ]
+          );
+          
 
         // Generate token
         const token = generateToken({

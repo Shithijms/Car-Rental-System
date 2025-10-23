@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { branchesAPI, categoriesAPI } from '../services/api';
 
 const Hero = () => {
@@ -30,21 +31,23 @@ const Hero = () => {
         }));
     }, []);
 
-    const fetchData = async () => {
-        try {
-            const [branchesResponse, categoriesResponse] = await Promise.all([
-                branchesAPI.getAll(),
-                categoriesAPI.getAll(),
-            ]);
+    
 
-            setBranches(branchesResponse.data.data);
-            setCategories(categoriesResponse.data.data);
-        } catch (error) {
-            console.error('Error fetching hero data:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+const fetchData = async () => {
+  try {
+    const [branchesRes, categoriesRes] = await Promise.all([
+      axios.get('http://localhost:5000/api/branches/'),
+      axios.get('http://localhost:5000/api/categories/'),
+    ]);
+
+    setBranches(branchesRes.data.data);
+    setCategories(categoriesRes.data.data);
+  } catch (error) {
+    console.error('Error fetching hero data:', error);
+  } finally {
+    setLoading(false);
+  }
+};
 
     const handleSearch = (e) => {
         e.preventDefault();

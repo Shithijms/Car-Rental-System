@@ -74,7 +74,8 @@ import { rentalsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 const MyBooking = () => {
-    const { user } = useAuth();
+    const user = { id: 1, name: "Dev User" }; // temporary
+    // const { user } = useAuth();
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');

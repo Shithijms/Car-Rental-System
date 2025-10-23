@@ -19,11 +19,17 @@ const Booking = () => {
     const [error, setError] = useState('');
 
     // Get car from location state or redirect
-    useEffect(() => {
-        if (!isAuthenticated) {
-            navigate('/login', { state: { from: location } });
-            return;
-        }
+     useEffect(() => {
+    //     if (!isAuthenticated) {
+    //         navigate('/login', { state: { from: location } });
+    //         return;
+    //     }
+            const user = {
+                name: "Dev User",
+                email: "dev@example.com",
+                phone: "1234567890",
+                driver_license: "D1234567"
+            };
 
         if (location.state?.car) {
             setCar(location.state.car);

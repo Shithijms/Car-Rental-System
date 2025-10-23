@@ -16,6 +16,8 @@ import './index.css';
 import Register from "./pages/Register.jsx";
 import Payment from "./pages/Payment.jsx";
 import Booking from "./pages/Booking.jsx";
+import Profile from "./pages/Profile";
+
 
 function App() {
   return (
@@ -35,9 +37,10 @@ function App() {
               <Route path="/payment" element={<Payment />} />
               {/* Customer Routes */}
               <Route path="/my-bookings" element={<MyBooking />} />
+              <Route path="/profile" element={<Profile />} />
 
               {/* Owner Routes */}
-              <Route path="/owner/dashboard" element={<Dashboard />} />
+              {/* <Route path="/owner/dashboard" element={<Dashboard />} /> */}
               <Route path="/owner/cars" element={<ManageCars />} />
               <Route path="/owner/bookings" element={<ManageBookings />} />
 
