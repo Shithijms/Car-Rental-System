@@ -75,6 +75,7 @@ const createRental = async (req, res, next) => {
     }
 };
 
+
 const getMyBookings = async (req, res, next) => {
     try {
         const customer_id = req.user.id;
@@ -131,55 +132,6 @@ const getMyBookings = async (req, res, next) => {
                 total,
                 pages: Math.ceil(total / limit)
             }
-        });
-    } catch (error) {
-        next(error);
-    }
-};
-
-const getRentalById = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const customer_id = req.user.id;
-
-        const [rentals] = await pool.execute(
-            `SELECT 
-        r.*,
-        c.brand,
-        c.model,
-        c.image_url,
-        c.color,
-        c.license_plate,
-        cat.name as category_name,
-        b.name as branch_name,
-        b.address as branch_address,
-        b.phone as branch_phone,
-        cust.name as customer_name,
-        cust.phone as customer_phone,
-        p.payment_status,
-        p.amount as paid_amount,
-        p.payment_method,
-        p.transaction_id
-      FROM rentals r
-      JOIN cars c ON r.car_id = c.id
-      JOIN car_categories cat ON c.category_id = cat.id
-      JOIN branches b ON r.branch_id = b.id
-      JOIN customers cust ON r.customer_id = cust.id
-      LEFT JOIN payments p ON r.id = p.rental_id
-      WHERE r.id = ? AND r.customer_id = ?`,
-            [id, customer_id]
-        );
-
-        if (rentals.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'Rental not found'
-            });
-        }
-
-        res.json({
-            success: true,
-            data: rentals[0]
         });
     } catch (error) {
         next(error);
@@ -348,6 +300,30 @@ const getOwnerBookings = async (req, res, next) => {
         });
     } catch (error) {
         next(error);
+    }
+};
+
+export const getRentalById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [rows] = await pool.execute(
+            `SELECT r.*, c.brand, c.model, c.image_url, cc.name AS category_name, b.name AS branch_name
+       FROM rentals r
+       JOIN cars c ON r.car_id = c.id
+       JOIN car_categories cc ON c.category_id = cc.id
+       JOIN branches b ON c.branch_id = b.id
+       WHERE r.id = ?`,
+            [id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Rental not found' });
+        }
+
+        res.json({ success: true, data: rows[0] });
+    } catch (error) {
+        console.error('Error in getRentalById:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
     }
 };
 

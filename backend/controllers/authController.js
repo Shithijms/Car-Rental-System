@@ -3,7 +3,7 @@ const { hashPassword, comparePassword, validateEmail } = require('../utils/helpe
 const { generateToken } = require('../utils/jwt');
 
 const register = async (req, res, next) => {
-    console.log("Login body received:", req.body);
+    console.log("Register body received:", req.body);
 
     try {
         const { name, email, password, phone, address, driver_license, date_of_birth } = req.body;
@@ -48,19 +48,19 @@ const register = async (req, res, next) => {
 
         // Create user
         const [result] = await pool.execute(
-            `INSERT INTO customers (name, email, password, phone, address, driver_license, date_of_birth) 
+            `INSERT INTO customers (name, email, password, phone, address, driver_license, date_of_birth)
              VALUES (?, ?, ?, ?, ?, ?, ?)`,
             [
-              name,
-              email,
-              hashedPassword,
-              phone ?? null,
-              address ?? null,
-              driver_license ?? null,
-              date_of_birth ?? null
+                name,
+                email,
+                hashedPassword,
+                phone ?? null,
+                address ?? null,
+                driver_license ?? null,
+                date_of_birth ?? null
             ]
-          );
-          
+        );
+
 
         // Generate token
         const token = generateToken({
@@ -87,6 +87,8 @@ const register = async (req, res, next) => {
 };
 
 const login = async (req, res, next) => {
+    console.log("Login body received:", req.body);
+
     try {
         const { email, password } = req.body;
 
@@ -170,11 +172,22 @@ const updateProfile = async (req, res, next) => {
         const { name, phone, address, driver_license, date_of_birth } = req.body;
         const userId = req.user.id;
 
+        console.log('Update profile request:', { userId, body: req.body });
+
+        // Validation
+        if (!name) {
+            return res.status(400).json({
+                success: false,
+                message: 'Name is required'
+            });
+        }
+
+        // Update user profile
         const [result] = await pool.execute(
             `UPDATE customers 
-       SET name = ?, phone = ?, address = ?, driver_license = ?, date_of_birth = ?, updated_at = CURRENT_TIMESTAMP 
-       WHERE id = ?`,
-            [name, phone, address, driver_license, date_of_birth, userId]
+             SET name = ?, phone = ?, address = ?, driver_license = ?, date_of_birth = ?, updated_at = CURRENT_TIMESTAMP 
+             WHERE id = ?`,
+            [name, phone || null, address || null, driver_license || null, date_of_birth || null, userId]
         );
 
         if (result.affectedRows === 0) {
@@ -190,12 +203,15 @@ const updateProfile = async (req, res, next) => {
             [userId]
         );
 
+        console.log('Profile updated successfully:', users[0]);
+
         res.json({
             success: true,
             message: 'Profile updated successfully',
             user: users[0]
         });
     } catch (error) {
+        console.error('Update profile error:', error);
         next(error);
     }
 };

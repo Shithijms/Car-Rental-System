@@ -5,6 +5,8 @@ const auth = async (req, res, next) => {
     try {
         const token = req.header('Authorization')?.replace('Bearer ', '');
 
+        console.log('Auth middleware - Token:', token ? 'Present' : 'Missing');
+
         if (!token) {
             return res.status(401).json({
                 success: false,
@@ -13,10 +15,11 @@ const auth = async (req, res, next) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('Auth middleware - Decoded:', decoded);
 
         // Check if user exists
         const [users] = await pool.execute(
-            'SELECT id, name, email, role FROM customers WHERE id = ? AND email = ?',
+            'SELECT id, name, email FROM customers WHERE id = ? AND email = ?',
             [decoded.id, decoded.email]
         );
 
@@ -28,8 +31,10 @@ const auth = async (req, res, next) => {
         }
 
         req.user = users[0];
+        console.log('Auth middleware - User authenticated:', req.user);
         next();
     } catch (error) {
+        console.error('Auth middleware error:', error);
         res.status(401).json({
             success: false,
             message: 'Invalid token.'

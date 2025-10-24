@@ -40,7 +40,7 @@ function App() {
               <Route path="/profile" element={<Profile />} />
 
               {/* Owner Routes */}
-              {/* <Route path="/owner/dashboard" element={<Dashboard />} /> */}
+               <Route path="/owner/dashboard" element={<Dashboard />} />
               <Route path="/owner/cars" element={<ManageCars />} />
               <Route path="/owner/bookings" element={<ManageBookings />} />
 

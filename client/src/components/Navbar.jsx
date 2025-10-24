@@ -42,7 +42,7 @@ const Navbar = ({ setShowLogin }) => {
                 </div>
 
                 <div className="flex max-sm:flex-col items-start sm:items-center gap-6">
-                    <button onClick={() => navigate('/owner')} className="cursor-pointer">Dashboard</button>
+                    <button onClick={() => navigate('/owner/dashboard')} className="cursor-pointer">Dashboard</button>
                     {/* <button
                         onClick={() => setShowLogin({ visible: true, redirect: location.pathname })}
                         className="px-8 py-2 bg-primary hover:bg-primary-dull text-black rounded-lg"
