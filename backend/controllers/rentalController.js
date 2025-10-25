@@ -74,21 +74,20 @@ const createRental = async (req, res, next) => {
         next(error);
     }
 };
-
-
-const getMyBookings = async (req, res, next) => {
+const getMyBookings = async (req, res) => {
     try {
-        const customer_id = req.user.id;
-        const { page = 1, limit = 10, status } = req.query;
+        const customerId = req.user.id;
+        const limit = 10;
+        const offset = 0;
 
-        let query = `
-      SELECT 
+        const query = `
+      SELECT
         r.*,
         c.brand,
         c.model,
         c.image_url,
-        cat.name as category_name,
-        b.name as branch_name,
+        cat.name AS category_name,
+        b.name AS branch_name,
         p.payment_status
       FROM rentals r
       JOIN cars c ON r.car_id = c.id
@@ -96,45 +95,15 @@ const getMyBookings = async (req, res, next) => {
       JOIN branches b ON r.branch_id = b.id
       LEFT JOIN payments p ON r.id = p.rental_id
       WHERE r.customer_id = ?
+      ORDER BY r.created_at DESC
+      LIMIT ${Number(limit)} OFFSET ${Number(offset)}
     `;
-        const params = [customer_id];
 
-        if (status) {
-            query += ' AND r.status = ?';
-            params.push(status);
-        }
-
-        query += ' ORDER BY r.created_at DESC';
-
-        // Apply pagination
-        const offset = (page - 1) * limit;
-        query += ' LIMIT ? OFFSET ?';
-        params.push(parseInt(limit), offset);
-
-        const [rentals] = await pool.execute(query, params);
-
-        // Count total
-        const countQuery = `
-      SELECT COUNT(*) as total 
-      FROM rentals 
-      WHERE customer_id = ? ${status ? 'AND status = ?' : ''}
-    `;
-        const countParams = status ? [customer_id, status] : [customer_id];
-        const [countResult] = await pool.execute(countQuery, countParams);
-        const total = countResult[0].total;
-
-        res.json({
-            success: true,
-            data: rentals,
-            pagination: {
-                page: parseInt(page),
-                limit: parseInt(limit),
-                total,
-                pages: Math.ceil(total / limit)
-            }
-        });
+        const [rentals] = await pool.execute(query, [customerId]);
+        return res.json({ success: true, data: rentals });
     } catch (error) {
-        next(error);
+        console.error('Error fetching bookings:', error);
+        return res.status(500).json({ success: false, message: 'Server error', error: error.message });
     }
 };
 
@@ -239,33 +208,16 @@ const returnCar = async (req, res, next) => {
         }
         next(error);
     }
-};
-
-const getOwnerBookings = async (req, res, next) => {
+};const getOwnerBookings = async (req, res, next) => {
     try {
-        // For simplicity, we'll get all bookings
-        // In a real system, you'd filter by owner's cars/branches
         const { page = 1, limit = 10, status } = req.query;
 
-        let query = `
-      SELECT 
-        r.*,
-        c.brand,
-        c.model,
-        c.image_url,
-        cat.name as category_name,
-        b.name as branch_name,
-        cust.name as customer_name,
-        cust.phone as customer_phone,
-        p.payment_status
-      FROM rentals r
-      JOIN cars c ON r.car_id = c.id
-      JOIN car_categories cat ON c.category_id = cat.id
-      JOIN branches b ON r.branch_id = b.id
-      JOIN customers cust ON r.customer_id = cust.id
-      LEFT JOIN payments p ON r.id = p.rental_id
-      WHERE 1=1
-    `;
+        const pageNum = Math.max(1, parseInt(page) || 1);
+        const limitNum = Math.max(1, Math.min(100, parseInt(limit) || 10));
+        const offset = (pageNum - 1) * limitNum;
+
+        let query = 'SELECT r.*, c.brand, c.model, c.image_url, cat.name as category_name, b.name as branch_name, cust.name as customer_name, cust.phone as customer_phone, p.payment_status FROM rentals r JOIN cars c ON r.car_id = c.id JOIN car_categories cat ON c.category_id = cat.id JOIN branches b ON r.branch_id = b.id JOIN customers cust ON r.customer_id = cust.id LEFT JOIN payments p ON r.id = p.rental_id WHERE 1=1';
+
         const params = [];
 
         if (status) {
@@ -273,37 +225,35 @@ const getOwnerBookings = async (req, res, next) => {
             params.push(status);
         }
 
-        query += ' ORDER BY r.created_at DESC';
+        query += ' ORDER BY r.created_at DESC LIMIT ? OFFSET ?';
+        params.push(limitNum, offset);
 
-        // Apply pagination
-        const offset = (page - 1) * limit;
-        query += ' LIMIT ? OFFSET ?';
-        params.push(parseInt(limit), offset);
-
-        const [rentals] = await pool.execute(query, params);
+        // Change from pool.execute to pool.query
+        const [rentals] = await pool.query(query, params);
 
         // Count total
-        const countQuery = `SELECT COUNT(*) as total FROM rentals ${status ? 'WHERE status = ?' : ''}`;
+        const countQuery = 'SELECT COUNT(*) as total FROM rentals' + (status ? ' WHERE status = ?' : '');
         const countParams = status ? [status] : [];
-        const [countResult] = await pool.execute(countQuery, countParams);
+        const [countResult] = await pool.query(countQuery, countParams);
         const total = countResult[0].total;
 
         res.json({
             success: true,
             data: rentals,
             pagination: {
-                page: parseInt(page),
-                limit: parseInt(limit),
+                page: pageNum,
+                limit: limitNum,
                 total,
-                pages: Math.ceil(total / limit)
+                pages: Math.ceil(total / limitNum)
             }
         });
     } catch (error) {
+        console.error('Error fetching owner bookings:', error);
         next(error);
     }
 };
 
-export const getRentalById = async (req, res) => {
+const getRentalById = async (req, res) => {
     try {
         const { id } = req.params;
         const [rows] = await pool.execute(

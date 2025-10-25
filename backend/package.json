@@ -1,6 +1,7 @@
 {
   "name": "car-rental-backend",
   "version": "1.0.0",
+  "type": "commonjs",
   "description": "Car Rental Management System Backend",
   "main": "server.js",
   "scripts": {
