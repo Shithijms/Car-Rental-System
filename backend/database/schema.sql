@@ -144,19 +144,6 @@ CREATE TABLE discount_codes (
                                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Customer reviews table
-CREATE TABLE customer_reviews (
-                                  id INT PRIMARY KEY AUTO_INCREMENT,
-                                  rental_id INT NOT NULL,
-                                  car_id INT NOT NULL,
-                                  customer_id INT NOT NULL,
-                                  rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
-                                  comment TEXT,
-                                  review_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                  FOREIGN KEY (rental_id) REFERENCES rentals(id),
-                                  FOREIGN KEY (car_id) REFERENCES cars(id),
-                                  FOREIGN KEY (customer_id) REFERENCES customers(id)
-);
 
 -- Create indexes for better performance
 CREATE INDEX idx_cars_status ON cars(status);

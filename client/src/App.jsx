@@ -17,6 +17,7 @@ import Register from "./pages/Register.jsx";
 import Payment from "./pages/Payment.jsx";
 import Booking from "./pages/Booking.jsx";
 import Profile from "./pages/Profile";
+import AddCar from "./pages/owner/AddCar.jsx"
 
 
 function App() {
@@ -43,6 +44,8 @@ function App() {
                <Route path="/owner/dashboard" element={<Dashboard />} />
               <Route path="/owner/cars" element={<ManageCars />} />
               <Route path="/owner/bookings" element={<ManageBookings />} />
+              <Route path="/owner/addcar" element={<AddCar />} />
+
 
               {/* 404 Route */}
               <Route path="*" element={

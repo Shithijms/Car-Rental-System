@@ -292,7 +292,7 @@ const Dashboard = () => {
             </Link>
 
             <Link
-                to="/cars"
+                to="/owner/addcar"
                 className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
             >
               <div className="flex items-center">
