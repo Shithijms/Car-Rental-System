@@ -48,17 +48,17 @@ const getAllCars = async (req, res, next) => {
         } = req.query;
 
         let query = `
-      SELECT 
-        c.*,
-        cc.name as category_name,
-        cc.daily_rate,
-        b.name as branch_name,
-        b.address as branch_address
-      FROM cars c
-      JOIN car_categories cc ON c.category_id = cc.id
-      JOIN branches b ON c.branch_id = b.id
-      WHERE 1=1
-    `;
+            SELECT
+                c.*,
+                cc.name as category_name,
+                cc.daily_rate,
+                b.name as branch_name,
+                b.address as branch_address
+            FROM cars c
+                     JOIN car_categories cc ON c.category_id = cc.id
+                     JOIN branches b ON c.branch_id = b.id
+            WHERE 1=1
+        `;
         const params = [];
 
         // Apply filters
@@ -128,21 +128,21 @@ const getCarById = async (req, res, next) => {
         const { id } = req.params;
 
         const [cars] = await pool.execute(
-            `SELECT 
-        c.*,
-        cc.name as category_name,
-        cc.daily_rate,
-        cc.weekly_rate,
-        cc.monthly_rate,
-        cc.description as category_description,
-        b.name as branch_name,
-        b.address as branch_address,
-        b.phone as branch_phone,
-        b.email as branch_email
-      FROM cars c
-      JOIN car_categories cc ON c.category_id = cc.id
-      JOIN branches b ON c.branch_id = b.id
-      WHERE c.id = ?`,
+            `SELECT
+                 c.*,
+                 cc.name as category_name,
+                 cc.daily_rate,
+                 cc.weekly_rate,
+                 cc.monthly_rate,
+                 cc.description as category_description,
+                 b.name as branch_name,
+                 b.address as branch_address,
+                 b.phone as branch_phone,
+                 b.email as branch_email
+             FROM cars c
+                      JOIN car_categories cc ON c.category_id = cc.id
+                      JOIN branches b ON c.branch_id = b.id
+             WHERE c.id = ?`,
             [id]
         );
 
@@ -155,14 +155,14 @@ const getCarById = async (req, res, next) => {
 
         // Get reviews for this car
         const [reviews] = await pool.execute(
-            `SELECT 
-        cr.*,
-        c.name as customer_name
-      FROM customer_reviews cr
-      JOIN customers c ON cr.customer_id = c.id
-      WHERE cr.car_id = ?
-      ORDER BY cr.review_date DESC
-      LIMIT 10`,
+            `SELECT
+                 cr.*,
+                 c.name as customer_name
+             FROM customer_reviews cr
+                      JOIN customers c ON cr.customer_id = c.id
+             WHERE cr.car_id = ?
+             ORDER BY cr.review_date DESC
+                 LIMIT 10`,
             [id]
         );
 
@@ -226,9 +226,9 @@ const createCar = async (req, res, next) => {
 
         const [result] = await pool.execute(
             `INSERT INTO cars (
-        category_id, branch_id, brand, model, year, color, 
-        license_plate, vin, mileage, features
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                category_id, branch_id, brand, model, year, color,
+                license_plate, vin, mileage, features
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 category_id,
                 branch_id,
@@ -245,15 +245,15 @@ const createCar = async (req, res, next) => {
 
         // Get the created car
         const [cars] = await pool.execute(
-            `SELECT 
-        c.*,
-        cc.name as category_name,
-        cc.daily_rate,
-        b.name as branch_name
-      FROM cars c
-      JOIN car_categories cc ON c.category_id = cc.id
-      JOIN branches b ON c.branch_id = b.id
-      WHERE c.id = ?`,
+            `SELECT
+                 c.*,
+                 cc.name as category_name,
+                 cc.daily_rate,
+                 b.name as branch_name
+             FROM cars c
+                      JOIN car_categories cc ON c.category_id = cc.id
+                      JOIN branches b ON c.branch_id = b.id
+             WHERE c.id = ?`,
             [result.insertId]
         );
 
@@ -343,15 +343,15 @@ const updateCar = async (req, res, next) => {
 
         // Get updated car
         const [cars] = await pool.execute(
-            `SELECT 
-        c.*,
-        cc.name as category_name,
-        cc.daily_rate,
-        b.name as branch_name
-      FROM cars c
-      JOIN car_categories cc ON c.category_id = cc.id
-      JOIN branches b ON c.branch_id = b.id
-      WHERE c.id = ?`,
+            `SELECT
+                 c.*,
+                 cc.name as category_name,
+                 cc.daily_rate,
+                 b.name as branch_name
+             FROM cars c
+                      JOIN car_categories cc ON c.category_id = cc.id
+                      JOIN branches b ON c.branch_id = b.id
+             WHERE c.id = ?`,
             [id]
         );
 
@@ -369,19 +369,32 @@ const deleteCar = async (req, res, next) => {
     try {
         const { id } = req.params;
 
-        // Check if car has active rentals
+        // Check if car has active rentals (confirmed or active)
         const [activeRentals] = await pool.execute(
-            'SELECT id FROM rentals WHERE car_id = ? AND status IN ("pending", "confirmed", "active")',
+            'SELECT id FROM rentals WHERE car_id = ? AND status IN ("confirmed", "active")',
             [id]
         );
 
         if (activeRentals.length > 0) {
             return res.status(400).json({
                 success: false,
-                message: 'Cannot delete car with active or pending rentals'
+                message: 'Cannot delete car with active rentals'
             });
         }
 
+        // Delete any pending rentals for this car
+        await pool.execute(
+            'DELETE FROM rentals WHERE car_id = ? AND status = "pending"',
+            [id]
+        );
+
+        // Delete associated reviews
+        await pool.execute('DELETE FROM customer_reviews WHERE car_id = ?', [id]);
+
+        // Delete associated maintenance records
+        await pool.execute('DELETE FROM maintenance_records WHERE car_id = ?', [id]);
+
+        // Now, delete the car
         const [result] = await pool.execute('DELETE FROM cars WHERE id = ?', [id]);
 
         if (result.affectedRows === 0) {
@@ -393,12 +406,13 @@ const deleteCar = async (req, res, next) => {
 
         res.json({
             success: true,
-            message: 'Car deleted successfully'
+            message: 'Car and all associated records deleted successfully'
         });
     } catch (error) {
         next(error);
     }
 };
+
 
 const uploadCarImage = async (req, res, next) => {
     try {
@@ -450,8 +464,8 @@ const updateCarAvailability = async (req, res, next) => {
             });
         }
 
-        // Check if car has active rentals
-        if (status !== 'available') {
+        // Check if car has active rentals (confirmed or active)
+        if (status === 'maintenance' || status === 'unavailable') {
             const [activeRentals] = await pool.execute(
                 'SELECT id FROM rentals WHERE car_id = ? AND status IN ("confirmed", "active")',
                 [id]
@@ -460,7 +474,7 @@ const updateCarAvailability = async (req, res, next) => {
             if (activeRentals.length > 0) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Cannot change status of car with active rentals'
+                    message: `Cannot change status to ${status} when car has active rentals.`
                 });
             }
         }
@@ -486,62 +500,63 @@ const updateCarAvailability = async (req, res, next) => {
     }
 };
 
+
 const getAllCarsWithExtras = async (req, res) => {
     try {
-      // Replace with your actual DB logic
-      const cars = await db.Car.findAll();             // SELECT * FROM cars
-      const categories = await db.CarCategory.findAll(); // SELECT * FROM car_categories
-      const branches = await db.Branch.findAll();        // SELECT * FROM branches
-  
-      res.json({
-        cars,
-        categories,
-        branches
-      });
+        // Replace with your actual DB logic
+        const cars = await db.Car.findAll();             // SELECT * FROM cars
+        const categories = await db.CarCategory.findAll(); // SELECT * FROM car_categories
+        const branches = await db.Branch.findAll();        // SELECT * FROM branches
+
+        res.json({
+            cars,
+            categories,
+            branches
+        });
     } catch (error) {
-      console.error('Error fetching all data:', error);
-      res.status(500).json({ message: 'Server error' });
+        console.error('Error fetching all data:', error);
+        res.status(500).json({ message: 'Server error' });
     }
-  };
+};
 
 
-  const getAllCarRelatedData = async (req, res, next) => {
+const getAllCarRelatedData = async (req, res, next) => {
     try {
-      // Fetch all cars with category and branch info
-      const [cars] = await pool.execute(`
-        SELECT 
-          c.*,
-          cat.name AS category_name,
-          cat.daily_rate,
-          b.name AS branch_name
-        FROM cars c
-        JOIN car_categories cat ON c.category_id = cat.id
-        JOIN branches b ON c.branch_id = b.id
-        ORDER BY c.created_at DESC
-      `);
-  
-      // Fetch all categories
-      const [categories] = await pool.execute(`
-        SELECT id, name, daily_rate FROM car_categories ORDER BY name
-      `);
-  
-      // Fetch all branches
-      const [branches] = await pool.execute(`
-        SELECT id, name FROM branches ORDER BY name
-      `);
-  
-      res.json({
-        success: true,
-        data: {
-          cars,
-          categories,
-          branches,
-        },
-      });
+        // Fetch all cars with category and branch info
+        const [cars] = await pool.execute(`
+            SELECT
+                c.*,
+                cat.name AS category_name,
+                cat.daily_rate,
+                b.name AS branch_name
+            FROM cars c
+                     JOIN car_categories cat ON c.category_id = cat.id
+                     JOIN branches b ON c.branch_id = b.id
+            ORDER BY c.created_at DESC
+        `);
+
+        // Fetch all categories
+        const [categories] = await pool.execute(`
+            SELECT id, name, daily_rate FROM car_categories ORDER BY name
+        `);
+
+        // Fetch all branches
+        const [branches] = await pool.execute(`
+            SELECT id, name FROM branches ORDER BY name
+        `);
+
+        res.json({
+            success: true,
+            data: {
+                cars,
+                categories,
+                branches,
+            },
+        });
     } catch (error) {
-      next(error);
+        next(error);
     }
-  };
+};
 
 module.exports = {
     getAllCars,

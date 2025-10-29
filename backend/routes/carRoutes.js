@@ -18,10 +18,8 @@ const router = express.Router();
 
 // Public routes
 router.get('/', getAllCars);
-// Ensure '/all-data' doesn't get captured by ':id'
 router.get('/all-data', getAllCarRelatedData);
-// Constrain ':id' to numeric IDs only
-router.get('/:id(\\d+)', getCarById);
+router.get('/:id', getCarById);
 
 // Protected routes (owner only)
 router.post(
