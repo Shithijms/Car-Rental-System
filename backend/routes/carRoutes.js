@@ -8,7 +8,6 @@ const {
     deleteCar,
     uploadCarImage,
     updateCarAvailability,
-    getAllCarsWithExtras ,
     getAllCarRelatedData,
     upload
 } = require('../controllers/carController');
@@ -19,7 +18,10 @@ const router = express.Router();
 
 // Public routes
 router.get('/', getAllCars);
-router.get('/:id', getCarById);
+// Ensure '/all-data' doesn't get captured by ':id'
+router.get('/all-data', getAllCarRelatedData);
+// Constrain ':id' to numeric IDs only
+router.get('/:id(\\d+)', getCarById);
 
 // Protected routes (owner only)
 router.post(
@@ -66,8 +68,6 @@ router.post(
     uploadCarImage
 );
 
-router.get('/all-data', getAllCarsWithExtras);
-
-router.get('/all-data', getAllCarRelatedData);
+// (kept above)
 
 module.exports = router;

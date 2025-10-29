@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Title from "../../components/Title";
 import { assets } from "../../assets/assets";
 import axios from "axios";
+import { categoriesAPI, branchesAPI } from "../../services/api";
 
 const AddCar = () => {
   const [image, setImage] = useState(null);
@@ -21,19 +22,27 @@ const AddCar = () => {
     description: "",
     mileage: "",
   });
+  const [loading, setLoading] = useState({ categories: false, branches: false });
+  const [error, setError] = useState("");
 
   // Fetch categories and branches
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading({ categories: true, branches: true });
         const [catRes, branchRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/controller/category/"),
-          axios.get("http://localhost:5000/api/controller/branch/"),
+          categoriesAPI.getAll(),
+          branchesAPI.getAll(),
         ]);
-        setCategories(catRes.data);
-        setBranches(branchRes.data);
+        console.log('Categories API response:', catRes.data);
+        console.log('Branches API response:', branchRes.data);
+        setCategories(catRes.data?.data || []);
+        setBranches(branchRes.data?.data || []);
       } catch (err) {
         console.error("Error fetching categories or branches:", err);
+        setError("Failed to load categories or branches. Please try again.");
+      } finally {
+        setLoading({ categories: false, branches: false });
       }
     };
     fetchData();
@@ -180,12 +189,24 @@ const AddCar = () => {
               required
             >
               <option value="">Select Category</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
+              {categories.length === 0 ? (
+                <option value="" disabled>
+                  No categories found
                 </option>
-              ))}
+              ) : (
+                categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))
+              )}
             </select>
+            {loading.categories && (
+              <span className="text-xs text-gray-500">Loading categories…</span>
+            )}
+            {!loading.categories && categories.length > 0 && (
+              <span className="text-xs text-gray-400">{categories.length} categories loaded</span>
+            )}
 
             <select
               value={car.branch_id}
@@ -194,13 +215,28 @@ const AddCar = () => {
               required
             >
               <option value="">Select Branch</option>
-              {branches.map((branch) => (
-                <option key={branch.id} value={branch.id}>
-                  {branch.name}
+              {branches.length === 0 ? (
+                <option value="" disabled>
+                  No branches found
                 </option>
-              ))}
+              ) : (
+                branches.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name}
+                  </option>
+                ))
+              )}
             </select>
+            {loading.branches && (
+              <span className="text-xs text-gray-500">Loading branches…</span>
+            )}
+            {!loading.branches && branches.length > 0 && (
+              <span className="text-xs text-gray-400">{branches.length} branches loaded</span>
+            )}
           </div>
+          {error && (
+            <div className="text-sm text-red-600">{error}</div>
+          )}
 
           {/* Description */}
           <textarea
