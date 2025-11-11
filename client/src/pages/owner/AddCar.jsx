@@ -5,7 +5,7 @@ import axios from "axios";
 import { categoriesAPI, branchesAPI } from "../../services/api";
 
 const AddCar = () => {
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState(null); // (kept only for preview UI)
   const [categories, setCategories] = useState([]);
   const [branches, setBranches] = useState([]);
   const [car, setCar] = useState({
@@ -15,10 +15,6 @@ const AddCar = () => {
     category_id: "",
     branch_id: "",
     color: "",
-    transmission: "",
-    fuel_type: "",
-    seating_capacity: "",
-    location: "",
     description: "",
     mileage: "",
   });
@@ -34,8 +30,6 @@ const AddCar = () => {
           categoriesAPI.getAll(),
           branchesAPI.getAll(),
         ]);
-        console.log('Categories API response:', catRes.data);
-        console.log('Branches API response:', branchRes.data);
         setCategories(catRes.data?.data || []);
         setBranches(branchRes.data?.data || []);
       } catch (err) {
@@ -48,34 +42,35 @@ const AddCar = () => {
     fetchData();
   }, []);
 
-  // Submit form handler
+  // ✅ Correct Submit Handler
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
     try {
-      const formData = new FormData();
-      formData.append("category_id", car.category_id);
-      formData.append("branch_id", car.branch_id);
-      formData.append("brand", car.brand);
-      formData.append("model", car.model);
-      formData.append("year", car.year);
-      formData.append("color", car.color);
-      formData.append("license_plate", `${car.brand}-${Date.now()}`); // temporary unique license
-      formData.append("mileage", car.mileage || 0);
-      formData.append("status", "available");
-      formData.append("description", car.description);
-      if (image) formData.append("image", image);
-
+      const payload = {
+        category_id: car.category_id ? Number(car.category_id) : null,
+        branch_id: car.branch_id ? Number(car.branch_id) : null,
+        brand: car.brand || "",
+        model: car.model || "",
+        year: car.year ? Number(car.year) : null,
+        color: car.color || null,
+        description: car.description || null,
+        mileage: car.mileage ? Number(car.mileage) : 0,
+        license_plate: `${car.brand}-${Date.now()}`,
+        status: "available",
+      };
+      
       const res = await axios.post(
-        "http://localhost:5000/api/controller/car",
-        formData,
+        "http://localhost:5000/api/cars",   // ✅ correct
+        payload,
         {
           headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // if protected
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
+      
 
       if (res.status === 200 || res.status === 201) {
         alert("✅ Car created successfully!");
@@ -86,16 +81,10 @@ const AddCar = () => {
           category_id: "",
           branch_id: "",
           color: "",
-          transmission: "",
-          fuel_type: "",
-          seating_capacity: "",
-          location: "",
           description: "",
           mileage: "",
         });
         setImage(null);
-      } else {
-        alert("Something went wrong.");
       }
     } catch (error) {
       console.error("❌ Error submitting car:", error.response?.data || error.message);
@@ -115,7 +104,8 @@ const AddCar = () => {
           onSubmit={onSubmitHandler}
           className="flex flex-col gap-5 text-gray-600 text-sm mt-6 bg-white p-8 rounded-lg shadow-md"
         >
-          {/* Car Image */}
+
+          {/* Image upload preview (optional UI only) */}
           <div className="flex items-center gap-3">
             <label htmlFor="car-image">
               <img
@@ -131,7 +121,7 @@ const AddCar = () => {
               hidden
               onChange={(e) => setImage(e.target.files[0])}
             />
-            <p className="text-sm text-gray-500">Upload a picture of your car</p>
+            <p className="text-sm text-gray-500">Image is optional and NOT uploaded.</p>
           </div>
 
           {/* Brand & Model */}
@@ -189,24 +179,12 @@ const AddCar = () => {
               required
             >
               <option value="">Select Category</option>
-              {categories.length === 0 ? (
-                <option value="" disabled>
-                  No categories found
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
                 </option>
-              ) : (
-                categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))
-              )}
+              ))}
             </select>
-            {loading.categories && (
-              <span className="text-xs text-gray-500">Loading categories…</span>
-            )}
-            {!loading.categories && categories.length > 0 && (
-              <span className="text-xs text-gray-400">{categories.length} categories loaded</span>
-            )}
 
             <select
               value={car.branch_id}
@@ -215,30 +193,14 @@ const AddCar = () => {
               required
             >
               <option value="">Select Branch</option>
-              {branches.length === 0 ? (
-                <option value="" disabled>
-                  No branches found
+              {branches.map((branch) => (
+                <option key={branch.id} value={branch.id}>
+                  {branch.name}
                 </option>
-              ) : (
-                branches.map((branch) => (
-                  <option key={branch.id} value={branch.id}>
-                    {branch.name}
-                  </option>
-                ))
-              )}
+              ))}
             </select>
-            {loading.branches && (
-              <span className="text-xs text-gray-500">Loading branches…</span>
-            )}
-            {!loading.branches && branches.length > 0 && (
-              <span className="text-xs text-gray-400">{branches.length} branches loaded</span>
-            )}
           </div>
-          {error && (
-            <div className="text-sm text-red-600">{error}</div>
-          )}
 
-          {/* Description */}
           <textarea
             rows={4}
             placeholder="Description..."

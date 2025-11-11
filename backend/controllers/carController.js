@@ -189,9 +189,16 @@ const createCar = async (req, res, next) => {
             color,
             license_plate,
             vin,
-            mileage = 0,
+            mileage,
             features
         } = req.body;
+        
+        // ✅ Ensure no undefined values
+        const carVin = vin || null;
+        const carMileage = mileage ? Number(mileage) : 0;
+        const carFeatures = features ? JSON.stringify(features) : JSON.stringify({});
+        const carColor = color || null;
+        
 
         // Validation
         if (!category_id || !branch_id || !brand || !model || !year || !license_plate) {
@@ -235,13 +242,15 @@ const createCar = async (req, res, next) => {
                 brand,
                 model,
                 year,
-                color,
+                carColor,
                 license_plate,
-                vin,
-                mileage,
-                JSON.stringify(featuresJson)
+                carVin,
+                carMileage,
+                carFeatures
             ]
         );
+        
+       
 
         // Get the created car
         const [cars] = await pool.execute(

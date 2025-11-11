@@ -72,17 +72,18 @@ const CarDetails = () => {
             <hr className='border-borderColor my-6' />
 
             <div className='grid grid-cols-2 sm:grid-cols-4 gap-4'>
-              {[
-                { icon: assets.users_icon, text: `${parsedFeatures.seats || 5} Seats` },
-                { icon: assets.fuel_icon, text: parsedFeatures.fuel || '—' },
-                { icon: assets.car_icon, text: parsedFeatures.transmission || '—' },
-                { icon: assets.location_icon, text: car.branch_name || '—' },
-              ].map(({ icon, text }) => (
-                <div key={text} className='flex flex-col items-center bg-light p-4 rounded-lg'>
-                  <img src={icon} alt="" className='h-5 mb-2' />
-                  {text}
-                </div>
-              ))}
+            {[
+              { icon: assets.users_icon, text: `${parsedFeatures.seats || 5} Seats` },
+              { icon: assets.fuel_icon, text: parsedFeatures.fuel || '—' },
+              { icon: assets.car_icon, text: parsedFeatures.transmission || '—' },
+              { icon: assets.location_icon, text: car.branch_name || '—' },
+            ].map(({ icon, text }, index) => (
+              <div key={index} className='flex flex-col items-center bg-light p-4 rounded-lg'>
+                <img src={icon} alt="" className='h-5 mb-2' />
+                {text}
+              </div>
+            ))}
+
             </div>
 
             {/* Description */}
