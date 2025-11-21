@@ -272,6 +272,9 @@ const createCar = async (req, res, next) => {
             data: cars[0]
         });
     } catch (error) {
+        console.error("❌ Error submitting car:", error.response?.data);
+        console.error("❌ Validator errors:", error.response?.data?.errors);
+    
         next(error);
     }
 };

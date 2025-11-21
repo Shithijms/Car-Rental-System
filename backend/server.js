@@ -9,13 +9,13 @@ const { testConnection } = require('./config/database');
 const authRoutes = require('./routes/authRoutes');
 const carRoutes = require('./routes/carRoutes');
 const rentalRoutes = require('./routes/rentalRoutes');
-const paymentRoutes = require('./routes/paymentRoutes');
+
 const categoryRoutes = require('./routes/categoryRoutes');
 const discountRoutes = require('./routes/discountRoutes');
-const reviewRoutes = require('./routes/reviewRoutes');
+
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const branchRoutes = require('./routes/branchRoutes');
-const customerRoutes = require('./routes/customerRoutes');
+
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
 
@@ -37,13 +37,11 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/cars', carRoutes);
 app.use('/api/rentals', rentalRoutes);
-app.use('/api/payments', paymentRoutes);
 app.use('/api/categories', categoryRoutes);
-app.use('/api/discounts', discountRoutes);
-app.use('/api/reviews', reviewRoutes);
+
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/branches', branchRoutes);
-app.use('/api/customers', customerRoutes);
+
 // Health check route
 app.get('/api/health', (req, res) => {
     res.json({

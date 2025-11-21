@@ -42,26 +42,26 @@ const AddCar = () => {
     fetchData();
   }, []);
 
-  // ✅ Correct Submit Handler
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-
+  
     try {
       const payload = {
-        category_id: car.category_id ? Number(car.category_id) : null,
-        branch_id: car.branch_id ? Number(car.branch_id) : null,
-        brand: car.brand || "",
-        model: car.model || "",
-        year: car.year ? Number(car.year) : null,
+        category_id: Number(car.category_id),
+        branch_id: Number(car.branch_id),
+        brand: car.brand.trim(),
+        model: car.model.trim(),
+        year: Number(car.year),
         color: car.color || null,
-        description: car.description || null,
-        mileage: car.mileage ? Number(car.mileage) : 0,
+        description: car.description || "",
+        mileage: Number(car.mileage || 0),
         license_plate: `${car.brand}-${Date.now()}`,
-        status: "available",
+        vin: null,
+        features: {}
       };
-      
+  
       const res = await axios.post(
-        "http://localhost:5000/api/cars",   // ✅ correct
+        "http://localhost:5000/api/cars",
         payload,
         {
           headers: {
@@ -70,10 +70,9 @@ const AddCar = () => {
           },
         }
       );
-      
-
+  
       if (res.status === 200 || res.status === 201) {
-        alert("✅ Car created successfully!");
+        alert("Car created successfully!");
         setCar({
           brand: "",
           model: "",
@@ -86,11 +85,19 @@ const AddCar = () => {
         });
         setImage(null);
       }
+  
     } catch (error) {
       console.error("❌ Error submitting car:", error.response?.data || error.message);
+  
+      // 🔥 NEW: show validation errors
+      if (error.response?.data?.errors) {
+        console.error("❌ Validation errors:", error.response.data.errors);
+      }
+  
       alert("Failed to add car. Check console for details.");
     }
   };
+  
 
   return (
     <div className="flex justify-center items-start px-4 py-10 md:px-10 min-h-screen bg-gray-50">
