@@ -153,21 +153,7 @@ const getCarById = async (req, res, next) => {
             });
         }
 
-        // Get reviews for this car
-        const [reviews] = await pool.execute(
-            `SELECT
-                 cr.*,
-                 c.name as customer_name
-             FROM customer_reviews cr
-                      JOIN customers c ON cr.customer_id = c.id
-             WHERE cr.car_id = ?
-             ORDER BY cr.review_date DESC
-                 LIMIT 10`,
-            [id]
-        );
-
         const car = cars[0];
-        car.reviews = reviews;
 
         res.json({
             success: true,
@@ -192,13 +178,13 @@ const createCar = async (req, res, next) => {
             mileage,
             features
         } = req.body;
-        
+
         // ✅ Ensure no undefined values
         const carVin = vin || null;
         const carMileage = mileage ? Number(mileage) : 0;
         const carFeatures = features ? JSON.stringify(features) : JSON.stringify({});
         const carColor = color || null;
-        
+
 
         // Validation
         if (!category_id || !branch_id || !brand || !model || !year || !license_plate) {
@@ -249,8 +235,8 @@ const createCar = async (req, res, next) => {
                 carFeatures
             ]
         );
-        
-       
+
+
 
         // Get the created car
         const [cars] = await pool.execute(
@@ -274,7 +260,7 @@ const createCar = async (req, res, next) => {
     } catch (error) {
         console.error("❌ Error submitting car:", error.response?.data);
         console.error("❌ Validator errors:", error.response?.data?.errors);
-    
+
         next(error);
     }
 };
@@ -399,12 +385,6 @@ const deleteCar = async (req, res, next) => {
             'DELETE FROM rentals WHERE car_id = ? AND status = "pending"',
             [id]
         );
-
-        // Delete associated reviews
-        await pool.execute('DELETE FROM customer_reviews WHERE car_id = ?', [id]);
-
-        // Delete associated maintenance records
-        await pool.execute('DELETE FROM maintenance_records WHERE car_id = ?', [id]);
 
         // Now, delete the car
         const [result] = await pool.execute('DELETE FROM cars WHERE id = ?', [id]);

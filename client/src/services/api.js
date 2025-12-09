@@ -76,9 +76,12 @@ export const rentalsAPI = {
 
 // Payments API
 export const paymentsAPI = {
-    process: (paymentData) => api.post('/payments', paymentData),
+    process: (paymentData) => api.post('/payments/process', paymentData),
+    getHistory: (params = {}) => api.get('/payments/history', { params }),
+    getDetails: (id) => api.get(`/payments/${id}`),
     getByRental: (rentalId) => api.get(`/payments/rental/${rentalId}`),
-    getMyPayments: (params = {}) => api.get('/payments/my-payments', { params }),
+    updateStatus: (id, status) => api.put(`/payments/${id}/status`, { payment_status: status }),
+    processRefund: (id, reason) => api.post(`/payments/${id}/refund`, { reason }),
 };
 
 // Categories API

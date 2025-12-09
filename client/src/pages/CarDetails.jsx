@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { assets } from '../assets/assets'
 import Loader from '../components/Loader'
-import {  Link} from "react-router-dom";
-import {carsAPI, reviewsAPI} from "../services/api.js";
-import {useAuth } from "../context/AuthContext"
-import {useBooking} from "../context/BookingContext.jsx";
+import { Link } from "react-router-dom";
+import { carsAPI, reviewsAPI } from "../services/api.js";
+import { useAuth } from "../context/AuthContext"
+import { useBooking } from "../context/BookingContext.jsx";
 
 const CarDetails = () => {
   const { id } = useParams()
@@ -16,7 +16,7 @@ const CarDetails = () => {
   const features = ["360 Camera", "Bluetooth", "GPS", "Heated Seats", "Rear View Mirror"]
 
   // 
-  
+
   useEffect(() => {
     const fetchCar = async () => {
       try {
@@ -32,14 +32,15 @@ const CarDetails = () => {
         console.error('Error loading car:', error.message);
       }
     };
-  
+
     fetchCar();
   }, [id]);
-  
+
 
   const handleSubmit = (e) => {
-    e.preventDefault()
-    // Add booking logic here
+    e.preventDefault();
+    // Navigate to booking page with car data
+    navigate('/booking', { state: { car } });
   }
 
   const parsedFeatures = (() => {
@@ -72,17 +73,17 @@ const CarDetails = () => {
             <hr className='border-borderColor my-6' />
 
             <div className='grid grid-cols-2 sm:grid-cols-4 gap-4'>
-            {[
-              { icon: assets.users_icon, text: `${parsedFeatures.seats || 5} Seats` },
-              { icon: assets.fuel_icon, text: parsedFeatures.fuel || '—' },
-              { icon: assets.car_icon, text: parsedFeatures.transmission || '—' },
-              { icon: assets.location_icon, text: car.branch_name || '—' },
-            ].map(({ icon, text }, index) => (
-              <div key={index} className='flex flex-col items-center bg-light p-4 rounded-lg'>
-                <img src={icon} alt="" className='h-5 mb-2' />
-                {text}
-              </div>
-            ))}
+              {[
+                { icon: assets.users_icon, text: `${parsedFeatures.seats || 5} Seats` },
+                { icon: assets.fuel_icon, text: parsedFeatures.fuel || '—' },
+                { icon: assets.car_icon, text: parsedFeatures.transmission || '—' },
+                { icon: assets.location_icon, text: car.branch_name || '—' },
+              ].map(({ icon, text }, index) => (
+                <div key={index} className='flex flex-col items-center bg-light p-4 rounded-lg'>
+                  <img src={icon} alt="" className='h-5 mb-2' />
+                  {text}
+                </div>
+              ))}
 
             </div>
 
@@ -123,7 +124,7 @@ const CarDetails = () => {
             <label htmlFor="return-date">Return Date</label>
             <input type="date" className='border border-borderColor px-3 py-2 rounded-lg' required id='return-date' min={(new Date()).toISOString().split('T')[0]} />
           </div>
-          <button className='w-full bg-primary hover:bg-primary-dull transition-all py-3 font-medium text-white rounded-xl cursor-pointer' type='submit'>
+          <button className='w-full bg-blue-600 hover:bg-blue-700 transition-all py-3 font-medium text-white rounded-xl cursor-pointer' type='submit'>
             Book Now
           </button>
         </form>

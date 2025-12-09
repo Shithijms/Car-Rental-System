@@ -111,77 +111,38 @@ CREATE TABLE payments (
                           FOREIGN KEY (rental_id) REFERENCES rentals(id) ON DELETE CASCADE
 );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 -- Maintenance records table
--- CREATE TABLE maintenance_records (
---                                      id INT PRIMARY KEY AUTO_INCREMENT,
---                                      car_id INT NOT NULL,
---                                      branch_id INT NOT NULL,
---                                      service_type VARCHAR(100) NOT NULL,
---                                      description TEXT,
---                                      cost DECIMAL(10,2),
---                                      mileage INT,
---                                      maintenance_date DATE NOT NULL,
---                                      completed_date DATE,
---                                      status ENUM('scheduled', 'in_progress', 'completed') DEFAULT 'scheduled',
---                                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---                                      FOREIGN KEY (car_id) REFERENCES cars(id),
---                                      FOREIGN KEY (branch_id) REFERENCES branches(id)
--- );
+CREATE TABLE maintenance_records (
+                                     id INT PRIMARY KEY AUTO_INCREMENT,
+                                     car_id INT NOT NULL,
+                                     branch_id INT NOT NULL,
+                                     service_type VARCHAR(100) NOT NULL,
+                                     description TEXT,
+                                     cost DECIMAL(10,2),
+                                     mileage INT,
+                                     maintenance_date DATE NOT NULL,
+                                     completed_date DATE,
+                                     status ENUM('scheduled', 'in_progress', 'completed') DEFAULT 'scheduled',
+                                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                     FOREIGN KEY (car_id) REFERENCES cars(id),
+                                     FOREIGN KEY (branch_id) REFERENCES branches(id)
+);
 
 -- Discount codes table
--- CREATE TABLE discount_codes (
---                                 id INT PRIMARY KEY AUTO_INCREMENT,
---                                 code VARCHAR(50) UNIQUE NOT NULL,
---                                 discount_type ENUM('percentage', 'fixed') DEFAULT 'percentage',
---                                 discount_value DECIMAL(10,2) NOT NULL,
---                                 min_rental_days INT DEFAULT 1,
---                                 max_discount_amount DECIMAL(10,2),
---                                 valid_from DATE NOT NULL,
---                                 valid_until DATE NOT NULL,
---                                 usage_limit INT DEFAULT 1,
---                                 times_used INT DEFAULT 0,
---                                 is_active BOOLEAN DEFAULT TRUE,
---                                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
--- );
+CREATE TABLE discount_codes (
+                                id INT PRIMARY KEY AUTO_INCREMENT,
+                                code VARCHAR(50) UNIQUE NOT NULL,
+                                discount_type ENUM('percentage', 'fixed') DEFAULT 'percentage',
+                                discount_value DECIMAL(10,2) NOT NULL,
+                                min_rental_days INT DEFAULT 1,
+                                max_discount_amount DECIMAL(10,2),
+                                valid_from DATE NOT NULL,
+                                valid_until DATE NOT NULL,
+                                usage_limit INT DEFAULT 1,
+                                times_used INT DEFAULT 0,
+                                is_active BOOLEAN DEFAULT TRUE,
+                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 
 -- Create indexes for better performance
@@ -191,4 +152,4 @@ CREATE INDEX idx_cars_branch ON cars(branch_id);
 CREATE INDEX idx_rentals_dates ON rentals(start_date, end_date);
 CREATE INDEX idx_rentals_status ON rentals(status);
 CREATE INDEX idx_rentals_customer ON rentals(customer_id);
--- CREATE INDEX idx_discount_codes_active ON discount_codes(is_active, valid_until);
+CREATE INDEX idx_discount_codes_active ON discount_codes(is_active, valid_until);

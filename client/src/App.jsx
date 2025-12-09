@@ -17,6 +17,7 @@ import Register from "./pages/Register.jsx";
 import Payment from "./pages/Payment.jsx";
 import Booking from "./pages/Booking.jsx";
 import Profile from "./pages/Profile";
+import PaymentHistory from "./pages/PaymentHistory.jsx";
 import AddCar from "./pages/owner/AddCar.jsx"
 
 
@@ -39,9 +40,10 @@ function App() {
               {/* Customer Routes */}
               <Route path="/my-bookings" element={<MyBooking />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/payment-history" element={<PaymentHistory />} />
 
               {/* Owner Routes */}
-               <Route path="/owner/dashboard" element={<Dashboard />} />
+              <Route path="/owner/dashboard" element={<Dashboard />} />
               <Route path="/owner/cars" element={<ManageCars />} />
               <Route path="/owner/bookings" element={<ManageBookings />} />
               <Route path="/owner/addcar" element={<AddCar />} />

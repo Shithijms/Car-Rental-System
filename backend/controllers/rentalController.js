@@ -2,7 +2,7 @@ const { pool } = require('../config/database');
 
 const createRental = async (req, res, next) => {
     try {
-        const { car_id, start_date, end_date, discount_code } = req.body;
+        const { car_id, start_date, end_date } = req.body;
         const customer_id = req.user.id;
 
         // Validation
@@ -32,10 +32,10 @@ const createRental = async (req, res, next) => {
             });
         }
 
-        // Use stored procedure to create rental
+        // Use stored procedure to create rental (simplified - no discount codes)
         const [result] = await pool.execute(
-            'CALL sp_create_rental(?, ?, ?, ?, ?)',
-            [customer_id, car_id, start_date, end_date, discount_code || null]
+            'CALL sp_create_rental(?, ?, ?, ?)',
+            [customer_id, car_id, start_date, end_date]
         );
 
         const rentalId = result[0][0].rental_id;
@@ -208,7 +208,7 @@ const returnCar = async (req, res, next) => {
         }
         next(error);
     }
-};const getOwnerBookings = async (req, res, next) => {
+}; const getOwnerBookings = async (req, res, next) => {
     try {
         const { page = 1, limit = 10, status } = req.query;
 
