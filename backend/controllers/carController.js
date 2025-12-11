@@ -41,7 +41,7 @@ const getAllCars = async (req, res, next) => {
             branch,
             minPrice,
             maxPrice,
-            status = 'available',
+            status,
             page = 1,
             limit = 12,
             search
@@ -57,7 +57,7 @@ const getAllCars = async (req, res, next) => {
             FROM cars c
                      JOIN car_categories cc ON c.category_id = cc.id
                      JOIN branches b ON c.branch_id = b.id
-            WHERE 1=1
+            
         `;
         const params = [];
 

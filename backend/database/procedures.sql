@@ -1,4 +1,4 @@
--- Stored Procedure: Create Rental (Simplified - No Discount Codes)
+
 DELIMITER $$
 CREATE PROCEDURE sp_create_rental(
     IN p_customer_id INT,
