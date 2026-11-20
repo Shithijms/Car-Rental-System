@@ -65,7 +65,7 @@ const createRental = async (req, res, next) => {
             data: rentals[0]
         });
     } catch (error) {
-        if (error.code === '45000') {
+        if (error.sqlState === '45000') {
             return res.status(400).json({
                 success: false,
                 message: error.message

@@ -1,4 +1,5 @@
 
+DROP PROCEDURE IF EXISTS sp_create_rental;
 DELIMITER $$
 CREATE PROCEDURE sp_create_rental(
     IN p_customer_id INT,
@@ -14,10 +15,26 @@ BEGIN
     DECLARE v_branch_id INT;
     DECLARE v_car_status VARCHAR(20);
     DECLARE v_rental_count INT;
+    DECLARE v_rental_id INT;
 
-    -- Check if car is available
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_car_status = NULL;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    -- Serialize bookings for this car until the rental is inserted.
     SELECT status, branch_id INTO v_car_status, v_branch_id
-    FROM cars WHERE id = p_car_id;
+    FROM cars
+    WHERE id = p_car_id
+    FOR UPDATE;
+
+    IF v_car_status IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Car not found';
+    END IF;
 
     IF v_car_status != 'available' THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Car is not available for rental';
@@ -27,7 +44,7 @@ BEGIN
     SELECT COUNT(*) INTO v_rental_count
     FROM rentals
     WHERE car_id = p_car_id
-      AND status IN ('confirmed', 'active')
+      AND status IN ('pending', 'confirmed', 'active')
       AND (
         (start_date BETWEEN p_start_date AND p_end_date) OR
         (end_date BETWEEN p_start_date AND p_end_date) OR
@@ -60,8 +77,10 @@ BEGIN
         v_final_amount, 'pending'
     );
 
-    -- Return the created rental ID
-    SELECT LAST_INSERT_ID() as rental_id;
+    SET v_rental_id = LAST_INSERT_ID();
+    COMMIT;
+
+    SELECT v_rental_id as rental_id;
 END$$
 DELIMITER ;
 
